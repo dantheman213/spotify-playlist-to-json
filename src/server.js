@@ -1,5 +1,6 @@
 'use strict';
 
+const random = require('random');
 const puppeteer = require('puppeteer');
 const express = require('express');
 const app = express();
@@ -15,7 +16,10 @@ app.get('/', (req, res) => {
         });
         await page.goto('https://open.spotify.com/playlist/2wSNKxLM217jpZnkAgYZPH');
         await checkPlaylistScrollForNewSongs(page);
-        await page.screenshot({path: '/tmp/example.png'});
+        await page.screenshot({
+            path: '/var/log/jobs/jobs_' + new Date().getTime() + '.png',
+            fullPage: true
+        });
 
         const tracks = [];
         const trackElems = await (page.$$('.tracklist-name'));
@@ -32,6 +36,11 @@ app.get('/', (req, res) => {
 });
 
 async function checkPlaylistScrollForNewSongs(page) {
+    await page.focus('body');
+    await page.mouse.click(942, 120, {
+        delay: random.int(50, 250)
+    });
+
     let lastCount = -1, currentCount = 0;
     while (lastCount !== currentCount) {
         await scrollPageToBottom(page);
@@ -46,36 +55,12 @@ async function checkPlaylistScrollForNewSongs(page) {
     }
 }
 
-async function scrollPageToBottom(page, scrollStep = 250, scrollDelay = 100) {
-    const lastPosition = await page.evaluate(
-        async (step, delay) => {
-            const getScrollHeight = (element) => {
-                const { scrollHeight, offsetHeight, clientHeight } = element;
-                return Math.max(scrollHeight, offsetHeight, clientHeight)
-            };
-
-            const position = await new Promise((resolve) => {
-                let count = 0;
-                const intervalId = setInterval(() => {
-                    const { body } = document;
-                    const availableScrollHeight = getScrollHeight(body);
-
-                    window.scrollBy(0, step);
-                    count += step;
-
-                    if (count >= availableScrollHeight) {
-                        clearInterval(intervalId);
-                        resolve(count)
-                    }
-                }, delay)
-            });
-
-            return position
-        },
-        scrollStep,
-        scrollDelay,
-    );
-    return lastPosition
+async function scrollPageToBottom(page) {
+    for (let i = 1; i < random.int(10, 20); i++) {
+        await page.keyboard.press('PageDown');
+        await page.keyboard.press('ArrowDown');
+        await page.waitFor(random.int(1, 10) * random.int(100, 500));
+    }
 }
 
 app.listen(port, () => console.log(`App listening on port ${port}!`));

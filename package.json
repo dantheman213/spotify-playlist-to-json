@@ -6,6 +6,7 @@
   },
   "dependencies": {
     "express": "^4.17.0",
-    "puppeteer-core": "^1.17.0"
+    "puppeteer-core": "^1.17.0",
+    "random": "^2.1.1"
   }
 }
