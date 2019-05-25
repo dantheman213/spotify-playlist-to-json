@@ -1,0 +1,10 @@
+.DS_Store
+[Tt]humbs.db
+
+.idea/
+
+node_modules/
+*.log
+
+# don't care about this
+package-lock.json

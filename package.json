@@ -1,0 +1,11 @@
+{
+  "name": "spotify-metadata-extract",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "node src/server.js"
+  },
+  "dependencies": {
+    "express": "^4.17.0",
+    "puppeteer-core": "^1.17.0"
+  }
+}
