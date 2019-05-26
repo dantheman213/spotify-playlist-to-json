@@ -22,7 +22,7 @@ app.get('/playlist/:id', (req, res) => {
         await page.goto(spotifyUrl);
 
         console.log('Navigating to bottom of page until scrolling stops to collect all songs for playlist; this will take awhile...');
-        //await checkPlaylistScrollForNewSongs(page);
+        await checkPlaylistScrollForNewSongs(page);
         await page.screenshot({
             path: '/var/log/jobs/jobs_' + (new Date().getTime()) + '.png',
             fullPage: true
@@ -31,18 +31,14 @@ app.get('/playlist/:id', (req, res) => {
         const trackRows = await (page.$$('.tracklist-name'));
         console.log('Found ' + trackRows.length + ' tracks!');
 
-        // const html = await page.evaluate(() => document.body.innerHTML);
         const html = await page.evaluate(() => document.documentElement.outerHTML);
         const $ = cheerio.load(html);
-        // console.log(html);
 
         const tracks = [];
 
-        const elems = $('.tracklist-row');
-        elems.each( (i, elem) => {
-            console.log(elem.html());
-            const title = elem.find($('.tracklist-name')).first().text();
-            const artist = elem.find($('.tracklist-row__artist-name-link')).first().text();
+        $('.tracklist-row').each( (i, elem) => {
+            const title = $(elem).find($('.tracklist-name')).first().text();
+            const artist = $(elem).find($('.tracklist-row__artist-name-link')).first().text();
 
             tracks.push({
                 title,
@@ -51,10 +47,9 @@ app.get('/playlist/:id', (req, res) => {
         });
 
         await browser.close();
-        console.log(JSON.stringify(tracks));
+        console.log('Operation complete!');
+        res.json(tracks);
     })();
-
-    res.json({status: 'ok. scheduled.'});
 });
 
 async function checkPlaylistScrollForNewSongs(page) {
