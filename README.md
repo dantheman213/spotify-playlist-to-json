@@ -21,7 +21,7 @@ You **only** need these items to run the application on any supported device:
 
     docker-compose up --build -d
 
-#### Start using the service
+### Start using the service
 
 The application is now running. Please visit [http://localhost:3000/playlist/abc123](http://localhost:3000/playlist/abc123) but use a real Spotify playlist ID. You can get an ID by right clicking a playlist in Spotify, share via URL, paste the URL into a text editor, and then extract the ID from the URL to give to the application. The app will return metadata such as title, artist(s), and album for all songs in the target playlist as an array of JSON objects.
 
