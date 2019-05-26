@@ -12,12 +12,15 @@ app.get('/playlist/:id', (req, res) => {
         console.log('Starting headless browser...');
         const browser = await puppeteer.launch({args: ['--no-sandbox', '--disable-setuid-sandbox']});
         const page = await browser.newPage();
+        await page.setCacheEnabled(false);
         await page.setViewport({
             width: 1200,
             height: 800
         });
 
-        const spotifyUrl = 'https://open.spotify.com/playlist/' + req.params.id;
+        // remove any parameters from the id if they exist
+        const spotifyId = req.params.id.indexOf('?') > -1 ? req.params.id.substr(0, req.params.id.indexOf('?')) : req.params.id;
+        const spotifyUrl = 'https://open.spotify.com/playlist/' + spotifyId;
         console.log('Navigating to ' + spotifyUrl);
         await page.goto(spotifyUrl);
 
@@ -46,8 +49,10 @@ app.get('/playlist/:id', (req, res) => {
                 artist,
                 album
             });
+
         });
 
+        await page.close();
         await browser.close();
         console.log('Operation complete!');
         res.json(tracks);
@@ -56,7 +61,8 @@ app.get('/playlist/:id', (req, res) => {
 
 async function checkPlaylistScrollForNewSongs(page) {
     await page.focus('body');
-    await page.mouse.click(942, 120, {
+    // await page.mouse.click(942, 120, {
+    await page.mouse.click(242, 92, {
         delay: random.int(50, 250)
     });
 

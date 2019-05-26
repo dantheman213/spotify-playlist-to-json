@@ -1,4 +1,4 @@
-FROM node:10.15.3-slim
+FROM node:12.3.1-slim
 
 # Install latest chrome dev package that will allow this version of Chromium/Pupeteer work together.
 RUN  apt-get update \
