@@ -1,34 +1,56 @@
 'use strict';
 
+const cheerio = require('cheerio');
 const random = require('random');
 const puppeteer = require('puppeteer');
 const express = require('express');
 const app = express();
 const port = 3000;
 
-app.get('/', (req, res) => {
+app.get('/playlist/:id', (req, res) => {
     (async () => {
+        console.log('Starting headless browser...');
         const browser = await puppeteer.launch({args: ['--no-sandbox', '--disable-setuid-sandbox']});
         const page = await browser.newPage();
         await page.setViewport({
             width: 1200,
             height: 800
         });
-        await page.goto('https://open.spotify.com/playlist/2wSNKxLM217jpZnkAgYZPH');
-        await checkPlaylistScrollForNewSongs(page);
+
+        const spotifyUrl = 'https://open.spotify.com/playlist/' + req.params.id;
+        console.log('Navigating to ' + spotifyUrl);
+        await page.goto(spotifyUrl);
+
+        console.log('Navigating to bottom of page until scrolling stops to collect all songs for playlist; this will take awhile...');
+        //await checkPlaylistScrollForNewSongs(page);
         await page.screenshot({
-            path: '/var/log/jobs/jobs_' + new Date().getTime() + '.png',
+            path: '/var/log/jobs/jobs_' + (new Date().getTime()) + '.png',
             fullPage: true
         });
 
+        const trackRows = await (page.$$('.tracklist-name'));
+        console.log('Found ' + trackRows.length + ' tracks!');
+
+        // const html = await page.evaluate(() => document.body.innerHTML);
+        const html = await page.evaluate(() => document.documentElement.outerHTML);
+        const $ = cheerio.load(html);
+        // console.log(html);
+
         const tracks = [];
-        const trackElems = await (page.$$('.tracklist-name'));
-        for (const elem of trackElems) {
-            const track = await page.evaluate(el => el.innerHTML, elem);
-            tracks.push(track);
-        }
+
+        const elems = $('.tracklist-row');
+        elems.each( (i, elem) => {
+            console.log(elem.html());
+            const title = elem.find($('.tracklist-name')).first().text();
+            const artist = elem.find($('.tracklist-row__artist-name-link')).first().text();
+
+            tracks.push({
+                title,
+                artist
+            });
+        });
+
         await browser.close();
-        console.log('Found ' + tracks.length + ' tracks!');
         console.log(JSON.stringify(tracks));
     })();
 

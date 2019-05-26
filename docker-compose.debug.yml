@@ -1,0 +1,9 @@
+version: '3'
+services:
+  spotify-playlist-to-json:
+    environment:
+      - NODE_ENV=dev
+      - NODE_OPTIONS=--inspect=9229
+    ports:
+      - 9229:9229
+    restart: "no"
