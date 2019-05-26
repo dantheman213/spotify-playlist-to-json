@@ -64,7 +64,6 @@ class SpotifyScraper {
 
     static async checkPlaylistScrollForNewSongs(page) {
         await page.focus('body');
-        // await page.mouse.click(942, 120, {
         await page.mouse.click(242, 92, {
             delay: random.int(50, 250)
         });
