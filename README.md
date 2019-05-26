@@ -10,8 +10,6 @@ Use headless Chrome to scrape Spotify playlists and convert playlist track data 
 
 ## Prerequisites
 
-### Minimum Software Required To Deploy Application
-
 You **only** need these items to run the application on any supported device:
 
 * [Docker](https://www.docker.com)
