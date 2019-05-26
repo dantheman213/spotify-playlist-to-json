@@ -17,14 +17,6 @@ You **only** need these items to run the application on any supported device:
 * [Docker](https://www.docker.com)
 * [Compose](https://docs.docker.com/compose)
 
-### For Development
-
-TODO
-
-#### Debugging
-
-TODO
-
 ## Getting Started
 
 ### Build Docker image & run application
@@ -33,15 +25,27 @@ TODO
 
 #### Start using the service
 
-The application is now running. Please visit [http://localhost:3000/playlist/abc123](http://localhost:3000/playlist/abc123) but use a real Spotify playlist ID. You can get an ID by right clicking a playlist in Spotify, share via URL, paste the URL into a text editor, and then extract the ID from the URL to give to the application.
+The application is now running. Please visit [http://localhost:3000/playlist/abc123](http://localhost:3000/playlist/abc123) but use a real Spotify playlist ID. You can get an ID by right clicking a playlist in Spotify, share via URL, paste the URL into a text editor, and then extract the ID from the URL to give to the application. The app will return metadata such as title, artist(s), and album for all songs in the target playlist as an array of JSON objects.
+
+## How does it work?
+
+The Docker image built contains a special copy of Chrome used for headless browsing (program interacting with a website) and a REST web app that will automate actions in the browser and pull out publicly available data for that playlist and provide it to a consumer as a JSON payload.
 
 ## Development
 
 TODO
 
+### Installation 
+
+TODO
+
+#### Debugging
+
+TODO
+
 ## Contribute
 
-Community feedback is welcome. If you spot bugs or optimization issues in the code or believe that the README can be improved, feel free to submit a pull request. You're also welcome to submit a new issue as well that fully explains the problem and recommended solution.
+Community feedback and teamwork is welcome. If you spot bugs or optimization issues in the code or believe that the README can be improved, feel free to submit a pull request. You're also welcome to submit a new issue as well that fully explains the problem and recommended solution.
 
 ## References
 
