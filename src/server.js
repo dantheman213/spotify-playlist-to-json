@@ -61,7 +61,7 @@ async function checkPlaylistScrollForNewSongs(page) {
     let lastCount = -1, currentCount = 0;
     while (lastCount !== currentCount) {
         await scrollPageToBottom(page);
-        await page.waitFor(8000);
+        await page.waitFor(1000);
 
         if (lastCount === -1) {
             lastCount = await (page.$$('.tracklist-name')).length;
@@ -73,10 +73,12 @@ async function checkPlaylistScrollForNewSongs(page) {
 }
 
 async function scrollPageToBottom(page) {
-    for (let i = 1; i < random.int(10, 20); i++) {
-        await page.keyboard.press('PageDown');
-        await page.keyboard.press('ArrowDown');
-        await page.waitFor(random.int(1, 10) * random.int(100, 500));
+    for (let i = 1; i < random.int(5, 15); i++) {
+        for(let j = 0; j < random.int(20, 100); j++) {
+            await page.keyboard.press('PageDown');
+            await page.keyboard.press('ArrowDown');
+        }
+        await page.waitFor(random.int(1, 5) * random.int(100, 150));
     }
 }
 
