@@ -37,12 +37,14 @@ app.get('/playlist/:id', (req, res) => {
         const tracks = [];
 
         $('.tracklist-row').each( (i, elem) => {
-            const title = $(elem).find($('.tracklist-name')).first().text();
-            const artist = $(elem).find($('.tracklist-row__artist-name-link')).first().text();
+            const title = $(elem).find($('.tracklist-name')).first().text() || null;
+            const artist = $(elem).find($('.tracklist-row__artist-name-link')).first().text() || null;
+            const album = $(elem).find($('.tracklist-row__album-name-link')).first().text() || null;
 
             tracks.push({
                 title,
-                artist
+                artist,
+                album
             });
         });
 
