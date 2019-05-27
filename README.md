@@ -23,7 +23,51 @@ You **only** need these items to run the application on any supported device:
 
 ### Start using the service
 
-The application is now running. Please visit [http://localhost:3000/playlist/abc123](http://localhost:3000/playlist/abc123) but use a real Spotify playlist ID. You can get an ID by right clicking a playlist in Spotify, share via URL, paste the URL into a text editor, and then extract the ID from the URL to give to the application. The app will return metadata such as title, artist(s), and album for all songs in the target playlist as an array of JSON objects.
+The application is now running. Please visit [http://localhost:3000/playlist/abc123](http://localhost:3000/playlist/abc123) but use a real Spotify playlist ID.
+
+You can get an ID by right clicking a playlist in Spotify, share via URL, paste the URL into a text editor, and then extract the ID from the URL to give to the application.
+
+The app will return metadata such as title, artist(s), and album for all songs in the target playlist as an array of JSON objects.
+
+#### Example
+
+##### Target Playlist
+
+https://open.spotify.com/playlist/5MA2NuCMiDEdV6edU5GpO7
+
+##### Application Request
+
+http://localhost:3000/playlist/5MA2NuCMiDEdV6edU5GpO7
+
+##### Sample Application Response
+
+    [
+        {
+            "title": "Closure",
+            "artists": [
+                "SLUMBERJACK",
+                "Ekali"
+            ],
+            "album": "SARAWAK"
+        },
+        {
+            "title": "Pray ft. Kameron Alexander (Blanke Remix)",
+            "artists": [
+                "ILLENIUM",
+                "Kameron Alexander",
+                "Blanke"
+            ],
+            "album": "Pray (ft. Kameron Alexander) - Remixes"
+        },
+        {
+            "title": "No Sleep",
+            "artists": [
+                "Bossfight"
+            ],
+            "album": "Next Wave"
+        },
+        ....
+    ]
 
 ## How does it work?
 
