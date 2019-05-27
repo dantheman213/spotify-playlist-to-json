@@ -33,11 +33,11 @@ The app will return metadata such as title, artist(s), and album for all songs i
 
 ##### Target Playlist
 
-https://open.spotify.com/playlist/5MA2NuCMiDEdV6edU5GpO7
+https://open.spotify.com/playlist/37i9dQZF1DX0hvSv9Rf41p
 
 ##### Application Request
 
-http://localhost:3000/playlist/5MA2NuCMiDEdV6edU5GpO7
+http://localhost:3000/playlist/37i9dQZF1DX0hvSv9Rf41p
 
 ##### Sample Application Response
 
