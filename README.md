@@ -1,12 +1,13 @@
 # Spotify Playlist To JSON
 
-Use headless Chrome to scrape Spotify playlists and convert playlist track data to a JSON array of objects.
+Turnkey solution to get any public Spotify playlist as JSON using Google Chrome (headless). No API key required.
 
 ## What you get
 
+* REST web app
+* Docker/Compose
 * Google Chrome (headless)
-* NodeJS v10
-* Spotify playlist -> JSON object app
+* NodeJS v12
 
 ## Prerequisites
 
