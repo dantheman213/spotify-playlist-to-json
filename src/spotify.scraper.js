@@ -55,12 +55,14 @@ class SpotifyScraper {
             });
 
             const albumElem = $(elem).find($('.tracklist-row__album-name-link'));
+            const albumUrl = 'https://open.spotify.com' + albumElem.attr('href') || null;
             playlist.tracks.push({
                 artists,
                 title: $(elem).find($('.tracklist-name')).first().text() || null,
                 album: {
                     name: albumElem.first().text() || null,
-                    url: 'https://open.spotify.com' + albumElem.attr('href') || null
+                    url: albumUrl,
+                    coverArt: SpotifyScraper.getAlbumCoverArt(albumUrl)
                 },
                 duration: $(elem).find($('.tracklist-duration')).first().text() || null
             });
@@ -73,6 +75,10 @@ class SpotifyScraper {
         console.log(`Task finished at ${endTime.toLocaleString()} and took ${(endTime - startTime) / 1000} seconds.`);
 
         return playlist;
+    }
+
+    static async getAlbumCoverArt(albumUrl) {
+        return null; // TODO
     }
 
     static async checkPlaylistScrollForNewSongs(page) {
