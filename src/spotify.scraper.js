@@ -32,24 +32,37 @@ class SpotifyScraper {
         const html = await page.evaluate(() => document.documentElement.outerHTML);
         const $ = cheerio.load(html);
 
-        const tracks = [];
+        const coverArt = $('.cover-art-image')
+            .css('background-image')
+            .replace('url(','')
+            .replace(')','')
+            .replace(/\"/gi, "");
+
+        const playlist = {
+            name: $('.mo-info-name').first().text() || null,
+            url: spotifyUrl,
+            coverArt,
+            tracks: []
+        };
 
         $('.tracklist-row').each((i, elem) => {
-            const title = $(elem).find($('.tracklist-name')).first().text() || null;
-            const album = $(elem).find($('.tracklist-row__album-name-link')).first().text() || null;
-
             const artists = [];
-            const artistElems = $(elem).find($('.tracklist-row__artist-name-link'));
-            if (artistElems != null && artistElems.length > 0) {
-                $(artistElems).each((i, elem) => {
-                    artists.push($(elem).text());
+            $(elem).find($('.tracklist-row__artist-name-link')).each((i, innerElem) => {
+                artists.push({
+                    name: $(innerElem).text() || null,
+                    url: 'https://open.spotify.com' + $(innerElem).attr('href') || null
                 });
-            }
+            });
 
-            tracks.push({
-                title,
+            const albumElem = $(elem).find($('.tracklist-row__album-name-link'));
+            playlist.tracks.push({
                 artists,
-                album
+                title: $(elem).find($('.tracklist-name')).first().text() || null,
+                album: {
+                    name: albumElem.first().text() || null,
+                    url: 'https://open.spotify.com' + albumElem.attr('href') || null
+                },
+                duration: $(elem).find($('.tracklist-duration')).first().text() || null
             });
         });
 
@@ -59,7 +72,7 @@ class SpotifyScraper {
         const endTime = new Date();
         console.log(`Task finished at ${endTime.toLocaleString()} and took ${(endTime - startTime) / 1000} seconds.`);
 
-        return tracks;
+        return playlist;
     }
 
     static async checkPlaylistScrollForNewSongs(page) {
