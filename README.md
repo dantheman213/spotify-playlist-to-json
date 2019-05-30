@@ -34,41 +34,39 @@ The app will return metadata such as title, artist(s), and album for all songs i
 
 ##### Target Playlist
 
-https://open.spotify.com/playlist/37i9dQZF1DX0hvSv9Rf41p
+https://open.spotify.com/playlist/3NcxM1LJJdua8AcRxtijNY
 
 ##### Application Request
 
-http://localhost:3000/playlist/37i9dQZF1DX0hvSv9Rf41p
+http://localhost:3000/playlist/3NcxM1LJJdua8AcRxtijNY
 
 ##### Sample Application Response
 
-    [
+    {
+      "name": "Classic Rock HITS : 90s Rock 80s Rock 70s Rock  60s Rock Music  'Best Rock Songs",
+      "url": "https://open.spotify.com/playlist/3NcxM1LJJdua8AcRxtijNY",
+      "coverArt": "https://pl.scdn.co/images/pl/default/51a1f097ab4d02c1b06e72fede4cbb6fda36b94c",
+      "tracks": [
         {
-            "title": "Closure",
-            "artists": [
-                "SLUMBERJACK",
-                "Ekali"
-            ],
-            "album": "SARAWAK"
+          "artists": [
+            {
+              "name": "AC/DC",
+              "url": "https://open.spotify.com/artist/711MCceyCBcFnzjGY4Q7Un"
+            }
+          ],
+          "album": {
+            "name": "Back In Black",
+            "url": "https://open.spotify.com/album/6mUdeDZCsExyJLMdAfDuwh",
+            "coverArt": "https://i.scdn.co/image/52d83377fe9d7fc838deeb859499f3973adf903f"
+          },
+          "song": {
+            "title": "Back In Black",
+            "duration": "4:15"
+          }
         },
-        {
-            "title": "Pray ft. Kameron Alexander (Blanke Remix)",
-            "artists": [
-                "ILLENIUM",
-                "Kameron Alexander",
-                "Blanke"
-            ],
-            "album": "Pray (ft. Kameron Alexander) - Remixes"
-        },
-        {
-            "title": "No Sleep",
-            "artists": [
-                "Bossfight"
-            ],
-            "album": "Next Wave"
-        },
-        ....
-    ]
+        ...
+      ]
+    }
 
 ## How does it work?
 
