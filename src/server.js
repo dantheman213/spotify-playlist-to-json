@@ -14,4 +14,7 @@ app.get('/playlist/:id', (req, res) => {
     })();
 });
 
-app.listen(port, () => console.log(`App listening on port ${port}!`));
+const server = app.listen(port, () => console.log(`App listening on port ${port}!`));
+server.setTimeout(500 * 1000);
+
+SpotifyScraper.init();

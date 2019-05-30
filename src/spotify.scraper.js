@@ -7,8 +7,8 @@ class SpotifyScraper {
         const startTime = new Date();
         console.log(`Task started at ${startTime.toLocaleString()}`);
         console.log('Starting headless browser...');
-        const browser = await puppeteer.launch({args: ['--no-sandbox', '--disable-setuid-sandbox']});
-        const page = await browser.newPage();
+        SpotifyScraper.browser = await puppeteer.launch({args: ['--no-sandbox', '--disable-setuid-sandbox']});
+        const page = await SpotifyScraper.browser.newPage();
         await page.setCacheEnabled(false);
         await page.setViewport({
             width: 1200,
@@ -33,6 +33,7 @@ class SpotifyScraper {
         const $ = cheerio.load(html);
 
         const coverArt = $('.cover-art-image')
+            .first()
             .css('background-image')
             .replace('url(','')
             .replace(')','')
@@ -45,31 +46,36 @@ class SpotifyScraper {
             tracks: []
         };
 
-        $('.tracklist-row').each((i, elem) => {
+        const rows = $('.tracklist-row');
+        for (const row of rows) {
             const artists = [];
-            $(elem).find($('.tracklist-row__artist-name-link')).each((i, innerElem) => {
+            $(row).find($('.tracklist-row__artist-name-link')).each((i, elem) => {
                 artists.push({
-                    name: $(innerElem).text() || null,
-                    url: 'https://open.spotify.com' + $(innerElem).attr('href') || null
+                    name: $(elem).text() || null,
+                    url: 'https://open.spotify.com' + $(elem).attr('href') || null
                 });
             });
 
-            const albumElem = $(elem).find($('.tracklist-row__album-name-link'));
-            const albumUrl = 'https://open.spotify.com' + albumElem.attr('href') || null;
-            playlist.tracks.push({
-                artists,
-                title: $(elem).find($('.tracklist-name')).first().text() || null,
-                album: {
-                    name: albumElem.first().text() || null,
-                    url: albumUrl,
-                    coverArt: SpotifyScraper.getAlbumCoverArt(albumUrl)
-                },
-                duration: $(elem).find($('.tracklist-duration')).first().text() || null
-            });
-        });
+            try {
+                const albumElem = $(row).find($('.tracklist-row__album-name-link'));
+                const albumUrl = 'https://open.spotify.com' + albumElem.attr('href') || null;
+                playlist.tracks.push({
+                    artists,
+                    title: $(row).find($('.tracklist-name')).first().text() || null,
+                    album: {
+                        name: albumElem.first().text() || null,
+                        url: albumUrl,
+                        coverArt: await SpotifyScraper.getAlbumCoverArt(albumUrl)
+                    },
+                    duration: $(row).find($('.tracklist-duration')).first().text() || null
+                });
+            } catch (e) {
+                console.log(`ERROR: Grabbing data from single row...` + e.toString());
+            }
+        }
 
         await page.close();
-        await browser.close();
+        await SpotifyScraper.browser.close();
 
         const endTime = new Date();
         console.log(`Task finished at ${endTime.toLocaleString()} and took ${(endTime - startTime) / 1000} seconds.`);
@@ -78,7 +84,29 @@ class SpotifyScraper {
     }
 
     static async getAlbumCoverArt(albumUrl) {
-        return null; // TODO
+        const page = await SpotifyScraper.browser.newPage();
+        await page.setCacheEnabled(false);
+        await page.setViewport({
+            width: 1200,
+            height: 800
+        });
+
+        await page.goto(albumUrl);
+        await page.waitForSelector('.cover-art-image-loaded');
+
+        const html = await page.evaluate(() => document.documentElement.outerHTML);
+        const $ = cheerio.load(html);
+
+        const coverArt = $('.cover-art-image')
+            .first()
+            .css('background-image')
+            .replace('url(','')
+            .replace(')','')
+            .replace(/\"/gi, "");
+        console.log(`Grabbed covertArt: ${coverArt}`);
+
+        page.close();
+        return coverArt;
     }
 
     static async checkPlaylistScrollForNewSongs(page) {
@@ -109,6 +137,21 @@ class SpotifyScraper {
             }
             await page.waitFor(random.int(1, 5) * random.int(100, 150));
         }
+    }
+
+    static init() {
+        // https://github.com/cheeriojs/cheerio/issues/1191
+        cheerio.prototype[Symbol.iterator] = function* () {
+            for (let i = 0; i < this.length; i += 1) {
+                yield this[i];
+            }
+        };
+
+        // cheerio.prototype.entries = function* () {
+        //     for (let i = 0; i < this.length; i += 1) {
+        //         yield [i, this[i]];
+        //     }
+        // };
     }
 }
 
