@@ -2,12 +2,23 @@ const cheerio = require('cheerio');
 const random = require('random');
 const puppeteer = require('puppeteer');
 
+const maxPageCount = 10;
+let pageCount = 1;
+
 class SpotifyScraper {
     static async getPlaylist(id) {
         const startTime = new Date();
         console.log(`Task started at ${startTime.toLocaleString()}`);
         console.log('Starting headless browser...');
         SpotifyScraper.browser = await puppeteer.launch({args: ['--no-sandbox', '--disable-setuid-sandbox']});
+
+        SpotifyScraper.browser.on('targetcreated', function(){
+            pageCount += 1;
+        });
+        SpotifyScraper.browser.on('targetdestroyed', function(){
+            pageCount -= 1;
+        });
+
         const page = await SpotifyScraper.browser.newPage();
         await page.setCacheEnabled(false);
         await page.setViewport({
@@ -28,6 +39,7 @@ class SpotifyScraper {
 
         const trackRows = await (page.$$('.tracklist-name'));
         console.log('Found ' + trackRows.length + ' tracks!');
+        console.log(`Retrieving metadata took ${(new Date() - startTime) / 1000} seconds.`);
 
         const html = await page.evaluate(() => document.documentElement.outerHTML);
         const $ = cheerio.load(html);
@@ -49,12 +61,9 @@ class SpotifyScraper {
         const promises = [];
         const rows = $('.tracklist-row');
         for (const row of rows) {
-            let pageCount = await SpotifyScraper.browser.pages().length;
-            console.log(`Open Chrome Page Count: ${pageCount}`);
-            while (pageCount > 5) {
-                console.log(`waiting for ${pageCount} other page(s) to finish before continuing`);
+            while (pageCount > maxPageCount) {
+                console.log(`waiting for ${Math.abs(pageCount - maxPageCount)} other page(s) to finish before continuing`);
                 await SpotifyScraper.sleep(random.int(100, 400));
-                pageCount = await SpotifyScraper.browser.pages().length;
             }
 
             promises.push(new Promise(async (resolve) => {
@@ -109,7 +118,6 @@ class SpotifyScraper {
             width: random.int(1200, 1920),
             height: random.int(800, 1080)
         });
-        console.log('opening request for album art...');
 
         try {
             await page.goto(albumUrl, {
