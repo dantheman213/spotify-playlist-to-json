@@ -49,6 +49,14 @@ class SpotifyScraper {
         const promises = [];
         const rows = $('.tracklist-row');
         for (const row of rows) {
+            let pageCount = await SpotifyScraper.browser.pages().length;
+            console.log(`Open Chrome Page Count: ${pageCount}`);
+            while (pageCount > 5) {
+                console.log(`waiting for ${pageCount} other page(s) to finish before continuing`);
+                await SpotifyScraper.sleep(random.int(100, 400));
+                pageCount = await SpotifyScraper.browser.pages().length;
+            }
+
             promises.push(new Promise(async (resolve) => {
                 const artists = [];
                 $(row).find($('.tracklist-row__artist-name-link')).each((i, elem) => {
@@ -80,7 +88,7 @@ class SpotifyScraper {
                 resolve();
             }));
 
-            await SpotifyScraper.sleep(random.int(7, 15) * 245);
+            await SpotifyScraper.sleep(random.int(4, 10) * random.int(25, 100));
         }
 
         await Promise.all(promises);
@@ -101,6 +109,7 @@ class SpotifyScraper {
             width: random.int(1200, 1920),
             height: random.int(800, 1080)
         });
+        console.log('opening request for album art...');
 
         try {
             await page.goto(albumUrl, {
