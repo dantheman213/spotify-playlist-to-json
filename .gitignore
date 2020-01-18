@@ -6,6 +6,3 @@
 node_modules/
 *.log
 logs/
-
-# don't care about this
-package-lock.json

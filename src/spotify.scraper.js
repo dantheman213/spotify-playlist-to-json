@@ -11,8 +11,8 @@ class SpotifyScraper {
         const page = await SpotifyScraper.browser.newPage();
         await page.setCacheEnabled(false);
         await page.setViewport({
-            width: 1200,
-            height: 800
+            width: random.int(1200, 1920),
+            height: random.int(800, 1080)
         });
 
         const spotifyUrl = 'https://open.spotify.com/playlist/' + id;
@@ -37,7 +37,7 @@ class SpotifyScraper {
             .css('background-image')
             .replace('url(','')
             .replace(')','')
-            .replace(/\"/gi, "");
+            .replace(/"/gi, "");
 
         const playlist = {
             name: $('.mo-info-name').first().text() || null,
@@ -80,7 +80,7 @@ class SpotifyScraper {
                 resolve();
             }));
 
-            await SpotifyScraper.sleep(random.int(4, 7) * 45);
+            await SpotifyScraper.sleep(random.int(7, 15) * 245);
         }
 
         await Promise.all(promises);
@@ -98,13 +98,14 @@ class SpotifyScraper {
         const page = await SpotifyScraper.browser.newPage();
         await page.setCacheEnabled(false);
         await page.setViewport({
-            width: 1200,
-            height: 800
+            width: random.int(1200, 1920),
+            height: random.int(800, 1080)
         });
 
         try {
-            await page.goto(albumUrl);
-            await page.waitForSelector('.cover-art-image-loaded');
+            await page.goto(albumUrl, {
+                waitUntil: 'networkidle2'
+            });
 
             const html = await page.evaluate(() => document.documentElement.outerHTML);
             const $ = cheerio.load(html);
@@ -114,7 +115,7 @@ class SpotifyScraper {
                 .css('background-image')
                 .replace('url(','')
                 .replace(')','')
-                .replace(/\"/gi, "");
+                .replace(/"/gi, "");
             console.log(`Grabbed covertArt: ${coverArt}`);
 
             page.close();
@@ -127,14 +128,16 @@ class SpotifyScraper {
 
     static async checkPlaylistScrollForNewSongs(page) {
         await page.focus('body');
-        await page.mouse.click(242, 92, {
+        // click just above the album art area in y-position and anywhere along the middle of the x position
+        // in line where they would meet
+        await page.mouse.click(random.int(242, 1200), random.int(65, 85), {
             delay: random.int(50, 250)
         });
 
         let lastCount = -1, currentCount = 0;
         while (lastCount !== currentCount) {
             await SpotifyScraper.scrollPageToBottom(page);
-            await page.waitFor(1000);
+            await page.waitFor(random.int(500, 2000));
 
             if (lastCount === -1) {
                 lastCount = await (page.$$('.tracklist-name')).length;
