@@ -1,46 +1,55 @@
 # Spotify Playlist To JSON
 
-Turnkey solution to get any public Spotify playlist as JSON using Google Chrome (headless). No API key required.
+Quickly and easily get any Spotify playlist metadata in JSON returned via HTTP API . No Spotify API key required.
 
-## What you get
+## How Does It Work?
 
-* REST web app
-* Docker/Compose
-* Google Chrome (headless)
-* NodeJS v12
-
-## Prerequisites
-
-You **only** need these items to run the application on any supported device:
-
-* [Docker](https://www.docker.com)
-* [Compose](https://docs.docker.com/compose)
+This app will load a full Chrome browser with no GUI (headless) into memory and load the playlist web page into it. The
+app will scroll to the very bottom allowing all the lazily loaded AJAX items to be downloaded. At this point go through
+all the HTML and pull out the necessary metadata. Open all song requests to get album/song cover arts. 
+Returns a friendly JSON response for you or your app to consume.
 
 ## Getting Started
 
-### Build Docker image & run application
+### Prerequisites
 
-    docker-compose up --build -d
+Make sure you have these installed:
 
-### Start using the service
+* [Docker](https://www.docker.com)
+* [Docker-Compose](https://docs.docker.com/compose)
 
-The application is now running. Please visit [http://localhost:3000/playlist/abc123](http://localhost:3000/playlist/abc123) but use a real Spotify playlist ID.
+### Download and run web service
 
-You can get an ID by right clicking a playlist in Spotify, share via URL, paste the URL into a text editor, and then extract the ID from the URL to give to the application.
+```
+git clone git@github.com:dantheman213/spotify-playlist-to-json.git
+cd spotify-playlist-to-json/
+docker-compose up --build -d
+```
 
-The app will return metadata such as title, artist(s), and album for all songs in the target playlist as an array of JSON objects.
+### Find Spotify Playlists you want to ingest
 
-#### Example
+Look for Spotify playlists that you are interested in and get the Spotify Playlist ID. This can be done in many ways.
+You can get an ID by right clicking a playlist in Spotify, select the "share via URL menu" option, paste the URL 
+into a text editor, and then extract the ID from the URL to give to the application. This can also be automated
+programmatically.
 
-##### Target Playlist
+Here is an example:
 
 https://open.spotify.com/playlist/3NcxM1LJJdua8AcRxtijNY
 
-##### Application Request
+### Send queries to web service via HTTP API
 
-http://localhost:3000/playlist/3NcxM1LJJdua8AcRxtijNY
+Here is an example:
 
-##### Sample Application Response
+http://localhost:3000/playlist/query/3NcxM1LJJdua8AcRxtijNY
+
+### Get status and results
+
+Here is an example:
+
+http://localhost:3000/playlist/result/3NcxM1LJJdua8AcRxtijNY
+
+#### Sample Application Response
 
     {
       "name": "Classic Rock HITS : 90s Rock 80s Rock 70s Rock  60s Rock Music  'Best Rock Songs",
@@ -68,31 +77,16 @@ http://localhost:3000/playlist/3NcxM1LJJdua8AcRxtijNY
       ]
     }
 
-## How does it work?
-
-The Docker image built contains a special copy of Chrome used for headless browsing (program interacting with a website) and a REST web app that will automate actions in the browser and pull out publicly available data for that playlist and provide it to a consumer as a JSON payload.
-
-## Development
-
-TODO
-
-### Installation 
-
-TODO
-
-#### Debugging
-
-TODO
-
 ## Contribute
 
 Community feedback and teamwork is welcome. If you spot bugs or optimization issues in the code or believe that the README can be improved, feel free to submit a pull request. You're also welcome to submit a new issue as well that fully explains the problem and recommended solution.
 
 ## References
 
-These are projects that I drew inspiration from or have bundled with this project.
-
 * https://developers.google.com/web/updates/2017/04/headless-chrome
+
 * https://github.com/GoogleChrome/puppeteer
+
 * https://github.com/buildkite/docker-puppeteer
+
 * https://github.com/cheeriojs/cheerio
