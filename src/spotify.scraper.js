@@ -3,23 +3,25 @@ const random = require('random');
 const puppeteer = require('puppeteer');
 
 const maxPageCount = 10;
-let pageCount = 1;
 
 class SpotifyScraper {
-    static async getPlaylist(id) {
+    #browser = null;
+    pageCount = 1;
+
+    async getPlaylist(id) {
         const startTime = new Date();
         console.log(`Task started at ${startTime.toLocaleString()}`);
         console.log('Starting headless browser...');
-        SpotifyScraper.browser = await puppeteer.launch({args: ['--no-sandbox', '--disable-setuid-sandbox']});
+        this.#browser = await puppeteer.launch({args: ['--no-sandbox', '--disable-setuid-sandbox']});
 
-        SpotifyScraper.browser.on('targetcreated', function(){
-            pageCount += 1;
+        this.#browser.on('targetcreated', () => {
+            this.pageCount += 1;
         });
-        SpotifyScraper.browser.on('targetdestroyed', function(){
-            pageCount -= 1;
+        this.#browser.on('targetdestroyed', () => {
+            this.pageCount -= 1;
         });
 
-        const page = await SpotifyScraper.browser.newPage();
+        const page = await this.#browser.newPage();
         await page.setCacheEnabled(false);
         await page.setViewport({
             width: random.int(1200, 1920),
@@ -31,11 +33,13 @@ class SpotifyScraper {
         await page.goto(spotifyUrl);
 
         console.log('Navigating to bottom of page until scrolling stops to collect all songs for playlist; this will take awhile...');
-        await SpotifyScraper.checkPlaylistScrollForNewSongs(page);
-        await page.screenshot({
-            path: '/var/log/jobs/jobs_' + (new Date().getTime()) + '.png',
-            fullPage: true
-        });
+        await this.checkPlaylistScrollForNewSongs(page);
+
+        // TODO: make this a debugging enabled option
+        // await page.screenshot({
+        //     path: '/var/log/jobs/jobs_' + (new Date().getTime()) + '.png',
+        //     fullPage: true
+        // });
 
         const trackRows = await (page.$$('.tracklist-name'));
         console.log('Found ' + trackRows.length + ' tracks!');
@@ -61,8 +65,8 @@ class SpotifyScraper {
         const promises = [];
         const rows = $('.tracklist-row');
         for (const row of rows) {
-            while (pageCount > maxPageCount) {
-                console.log(`waiting for ${Math.abs(pageCount - maxPageCount)} other page(s) to finish before continuing`);
+            while (this.pageCount > maxPageCount) {
+                console.log(`waiting for ${Math.abs(this.pageCount - maxPageCount)} other page(s) to finish before continuing`);
                 await SpotifyScraper.sleep(random.int(100, 400));
             }
 
@@ -83,7 +87,7 @@ class SpotifyScraper {
                         album: {
                             name: albumElem.first().text() || null,
                             url: albumUrl,
-                            coverArt: await SpotifyScraper.getAlbumCoverArt(albumUrl)
+                            coverArt: await this.getAlbumCoverArt(albumUrl)
                         },
                         song: {
                             title: $(row).find($('.tracklist-name')).first().text() || null,
@@ -102,7 +106,7 @@ class SpotifyScraper {
 
         await Promise.all(promises);
         await page.close();
-        await SpotifyScraper.browser.close();
+        await this.#browser.close();
 
         const endTime = new Date();
         console.log(`Task finished at ${endTime.toLocaleString()} and took ${(endTime - startTime) / 1000} seconds.`);
@@ -110,9 +114,9 @@ class SpotifyScraper {
         return playlist;
     }
 
-    static async getAlbumCoverArt(albumUrl) {
+    async getAlbumCoverArt(albumUrl) {
         let coverArt = null;
-        const page = await SpotifyScraper.browser.newPage();
+        const page = await this.#browser.newPage();
         await page.setCacheEnabled(false);
         await page.setViewport({
             width: random.int(1200, 1920),
@@ -143,7 +147,7 @@ class SpotifyScraper {
         return coverArt;
     }
 
-    static async checkPlaylistScrollForNewSongs(page) {
+    async checkPlaylistScrollForNewSongs(page) {
         await page.focus('body');
         // click just above the album art area in y-position and anywhere along the middle of the x position
         // in line where they would meet
@@ -153,7 +157,7 @@ class SpotifyScraper {
 
         let lastCount = -1, currentCount = 0;
         while (lastCount !== currentCount) {
-            await SpotifyScraper.scrollPageToBottom(page);
+            await this.scrollPageToBottom(page);
             await page.waitFor(random.int(500, 2000));
 
             if (lastCount === -1) {
@@ -165,7 +169,7 @@ class SpotifyScraper {
         }
     }
 
-    static async scrollPageToBottom(page) {
+    async scrollPageToBottom(page) {
         for (let i = 1; i < random.int(5, 15); i++) {
             for(let j = 0; j < random.int(20, 100); j++) {
                 await page.keyboard.press('PageDown');
@@ -175,7 +179,7 @@ class SpotifyScraper {
         }
     }
 
-    static init() {
+    init() {
         // https://github.com/cheeriojs/cheerio/issues/1191
         cheerio.prototype[Symbol.iterator] = function* () {
             for (let i = 0; i < this.length; i += 1) {

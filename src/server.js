@@ -18,7 +18,9 @@ app.get('/playlist/query/:id', (req, res) => {
     jobs.set(spotifyPlaylistId, false);
 
     (async (spotifyPlaylistId) => {
-        const playlist = await SpotifyScraper.getPlaylist(spotifyPlaylistId);
+        const s = new SpotifyScraper();
+        s.init();
+        const playlist = await s.getPlaylist(spotifyPlaylistId);
         jobs.set(spotifyPlaylistId, playlist);
     })(spotifyPlaylistId);
 
@@ -63,5 +65,3 @@ app.delete('/playlist/result/:id', (req, res) => {
 
 const server = app.listen(port, () => console.log(`App listening on port ${port}!`));
 server.setTimeout(800 * 1000);
-
-SpotifyScraper.init();
