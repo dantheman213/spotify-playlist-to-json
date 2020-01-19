@@ -1,11 +1,11 @@
 'use strict';
 
 const SpotifyScraper = require('./spotify.scraper');
+const jobs = new Map();
+
 const express = require('express');
 const app = express();
 const port = 3000;
-
-const jobs = new Map();
 
 app.get('/playlist/query/:id', (req, res) => {
     const spotifyPlaylistId = req.params.id.indexOf('?') > -1 ? req.params.id.substr(0, req.params.id.indexOf('?')) : req.params.id;
@@ -37,13 +37,13 @@ app.get('/playlist/result/:id', (req, res) => {
             if (!job) {
                 res.json({found: true, status: 'downloading'});
             } else {
-                res.json({found: true, status: 'complete', payload: job});
+                res.json({found: true, status: 'complete', playlist: job});
             }
             return;
         }
     }
 
-    res.json({found: false, status: null, payload: null});
+    res.json({found: false, status: null, playlist: null});
 });
 
 app.delete('/playlist/result/:id', (req, res) => {

@@ -5,6 +5,7 @@ const puppeteer = require('puppeteer');
 const maxPageCount = 10;
 
 class SpotifyScraper {
+    #cacheAlbumArt = new Map();
     #browser = null;
     pageCount = 1;
 
@@ -115,6 +116,13 @@ class SpotifyScraper {
     }
 
     async getAlbumCoverArt(albumUrl) {
+        if (this.#cacheAlbumArt.has(albumUrl)) {
+            const cachedItem = this.#cacheAlbumArt.get(albumUrl);
+            console.log(`Grabbed covertArt from cache: ${cachedItem}`);
+
+            return cachedItem;
+        }
+
         let coverArt = null;
         const page = await this.#browser.newPage();
         await page.setCacheEnabled(false);
@@ -137,7 +145,8 @@ class SpotifyScraper {
                 .replace('url(','')
                 .replace(')','')
                 .replace(/"/gi, "");
-            console.log(`Grabbed covertArt: ${coverArt}`);
+            this.#cacheAlbumArt.set(albumUrl, coverArt);
+            console.log(`Grabbed covertArt from web: ${coverArt}`);
 
             page.close();
         } catch (e) {
