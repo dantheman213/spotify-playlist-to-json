@@ -97,7 +97,7 @@ class SpotifyScraper {
                 resolve();
             }));
 
-            await SpotifyScraper.sleep(random.int(4, 10) * random.int(25, 100));
+            await SpotifyScraper.sleep(random.int(50, 150));
         }
 
         await Promise.all(promises);
